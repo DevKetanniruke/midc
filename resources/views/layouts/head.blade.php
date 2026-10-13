@@ -11,6 +11,7 @@
     $shades = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 @endphp
 <meta charset="utf-8">
+<link rel="icon" href="{{ $site->favicon }}">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -45,6 +46,9 @@
     // Replace native date / datetime-local inputs with Flatpickr (submits the same Y-m-d / Y-m-d H:i values).
     document.addEventListener('DOMContentLoaded', function () {
         if (!window.flatpickr) return;
+        document.querySelectorAll('input[type="time"]').forEach(function (el) {
+            flatpickr(el, { enableTime: true, noCalendar: true, allowInput: true, dateFormat: 'H:i', altInput: true, altFormat: 'h:i K' });
+        });
         document.querySelectorAll('input[type="date"], input[type="datetime-local"]').forEach(function (el) {
             var time = el.type === 'datetime-local';
             flatpickr(el, {

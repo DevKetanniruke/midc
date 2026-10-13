@@ -4,8 +4,8 @@
             <h1 class="font-semibold text-lg text-gray-800">Label · {{ $label->part_number }}</h1>
             <div class="flex flex-wrap gap-2 text-sm font-medium">
                 <a href="{{ route('labels.index') }}" class="px-3 py-1.5 rounded-md border border-gray-300 hover:bg-gray-50">Back</a>
-                <a href="{{ route('labels.edit', $label) }}" class="px-3 py-1.5 rounded-md border border-gray-300 hover:bg-gray-50">Edit</a>
-                <a href="{{ route('labels.create', ['same' => $label->id]) }}" class="px-3 py-1.5 rounded-md border border-gray-300 hover:bg-gray-50">Same</a>
+                @can('labels.edit')<a href="{{ route('labels.edit', $label) }}" class="px-3 py-1.5 rounded-md border border-gray-300 hover:bg-gray-50">Edit</a>@endcan
+                @can('labels.create')<a href="{{ route('labels.create', ['same' => $label->id]) }}" class="px-3 py-1.5 rounded-md border border-gray-300 hover:bg-gray-50">Same</a>@endcan
                 <a href="{{ route('labels.print', $label) }}" class="px-3 py-1.5 rounded-md bg-accent-600 text-white hover:bg-accent-700">Print</a>
             </div>
         </div>

@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('layouts.head')
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ $site->name }}</title>
     </head>
     <body class="font-sans antialiased bg-gray-100 text-gray-900">
         <div x-data="{

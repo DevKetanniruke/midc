@@ -9,12 +9,25 @@ use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
-class VisitorPassController extends Controller
+class VisitorPassController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        // Checking visitors in / out and cancelling count as "edit".
+        return [
+            new Middleware('permission:visitor-passes.view', only: ['index', 'show', 'print']),
+            new Middleware('permission:visitor-passes.create', only: ['create', 'store']),
+            new Middleware('permission:visitor-passes.edit', only: ['edit', 'update', 'status']),
+            new Middleware('permission:visitor-passes.delete', only: ['destroy']),
+        ];
+    }
+
     private const PER_PAGE = [10, 25, 50, 100];
 
     public function index(Request $request): View
@@ -25,10 +38,10 @@ class VisitorPassController extends Controller
             ->when($request->q, fn ($q, $s) => $q->where(fn ($w) => $w
                 ->where('pass_number', 'like', "%$s%")
                 ->orWhere('visitor_name', 'like', "%$s%")
-                ->orWhere('company', 'like', "%$s%")
                 ->orWhere('phone', 'like', "%$s%")
-                ->orWhere('person_to_meet', 'like', "%$s%")
-                ->orWhere('vehicle_number', 'like', "%$s%")))
+                ->orWhere('address', 'like', "%$s%")
+                ->orWhere('purpose', 'like', "%$s%")
+                ->orWhere('person_to_meet', 'like', "%$s%")))
             ->when($request->status, fn ($q, $v) => $q->where('status', $v))
             ->when($request->date_from, fn ($q, $v) => $q->whereDate(DB::raw('COALESCE(check_in_at, expected_at)'), '>=', $v))
             ->when($request->date_to, fn ($q, $v) => $q->whereDate(DB::raw('COALESCE(check_in_at, expected_at)'), '<=', $v))
@@ -118,20 +131,12 @@ class VisitorPassController extends Controller
     {
         $data = $request->validate([
             'visitor_name' => ['required', 'string', 'max:255'],
-            'company' => ['nullable', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:30'],
-            'email' => ['nullable', 'email', 'max:255'],
-            'id_proof_type' => ['nullable', 'string', 'max:50'],
-            'id_proof_number' => ['nullable', 'string', 'max:100'],
-            'person_to_meet' => ['required', 'string', 'max:255'],
-            'department' => ['nullable', 'string', 'max:255'],
+            'address' => ['nullable', 'string', 'max:500'],
             'purpose' => ['required', 'string', 'max:255'],
-            'persons' => ['required', 'integer', 'min:1', 'max:100'],
-            'vehicle_number' => ['nullable', 'string', 'max:50'],
-            'belongings' => ['nullable', 'string', 'max:255'],
+            'person_to_meet' => ['required', 'string', 'max:255'],
             'check_in_at' => [$preRegister ? 'nullable' : 'required', 'date'],
             'expected_at' => [$preRegister ? 'required' : 'nullable', 'date'],
-            'remarks' => ['nullable', 'string', 'max:1000'],
         ]);
 
         // Only the time that applies to this visit is stored; the other input is ignored.

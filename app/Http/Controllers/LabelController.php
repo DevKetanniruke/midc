@@ -6,10 +6,22 @@ use App\Models\Label;
 use App\Services\LabelBarcodeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-class LabelController extends Controller
+class LabelController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:labels.view', only: ['index', 'show', 'print', 'printMany']),
+            new Middleware('permission:labels.create', only: ['create', 'store']),
+            new Middleware('permission:labels.edit', only: ['edit', 'update']),
+            new Middleware('permission:labels.delete', only: ['destroy']),
+        ];
+    }
+
     private const PER_PAGE = [10, 25, 50, 100];
 
     public function index(Request $request): View

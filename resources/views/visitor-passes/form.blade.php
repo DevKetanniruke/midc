@@ -1,20 +1,6 @@
 @php
     $in = 'block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-accent-500 focus:ring-accent-500';
-    $sections = [
-        'Visitor' => [
-            ['visitor_name', 'Visitor Name', true], ['company', 'Company / Organisation'], ['phone', 'Phone', true], ['email', 'Email', false, 'email'],
-        ],
-        'Identity Proof' => [
-            ['id_proof_type', 'ID Proof Type', false, 'select'], ['id_proof_number', 'ID Proof Number'],
-        ],
-        'Visit' => [
-            ['person_to_meet', 'Person to Meet', true], ['department', 'Department'], ['purpose', 'Purpose of Visit', true],
-            ['persons', 'No. of Persons', true, 'number'], ['vehicle_number', 'Vehicle Number'], ['belongings', 'Belongings / Laptop / Items Carried'],
-        ],
-    ];
     $pre = old('mode') ? old('mode') === 'pre_register' : ($pass->exists && $pass->check_in_at === null);
-@endphp
-@php
 @endphp
 <x-app-layout>
     <x-slot name="header">
@@ -46,7 +32,7 @@
                     </div>
                 @endunless
                 <div x-show="mode === 'walk_in'" @if($pre) x-cloak @endif>
-                    <x-form-field name="check_in_at" label="Check-in Date & Time" type="datetime-local" :required="true"
+                    <x-form-field name="check_in_at" label="In Time (Date & Time)" type="datetime-local" :required="true"
                                   :value="optional($pass->check_in_at)->format('Y-m-d\TH:i') ?? now()->format('Y-m-d\TH:i')" />
                 </div>
                 <div x-show="mode === 'pre_register'" @unless($pre) x-cloak @endunless>
@@ -56,37 +42,19 @@
             </div>
         </section>
 
-        @foreach($sections as $title => $fields)
-            <section class="bg-white rounded-lg shadow-sm border border-gray-200">
-                <h2 class="px-6 py-4 border-b font-semibold text-gray-800">{{ $title }}</h2>
-                <div class="p-6 grid gap-5 sm:grid-cols-2">
-                    @foreach($fields as $field)
-                        @php
-                            [$name, $label, $required, $type] = array_pad($field, 4, null);
-                            $type = $type ?? 'text';
-                            $value = $name === 'check_in_at' ? optional($pass->check_in_at)->format('Y-m-d\TH:i') : $pass->{$name};
-                        @endphp
-                        @if($type === 'select')
-                            <div>
-                                <label for="{{ $name }}" class="block text-sm font-medium text-gray-700 mb-1">{{ $label }}</label>
-                                <select id="{{ $name }}" name="{{ $name }}" class="{{ $in }}">
-                                    <option value="">— Select —</option>
-                                    @foreach(\App\Models\VisitorPass::ID_PROOFS as $o)<option value="{{ $o }}" @selected(old($name, $value) === $o)>{{ $o }}</option>@endforeach
-                                </select>
-                                @error($name)<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                        @else
-                            <x-form-field :name="$name" :label="$label" :required="(bool) $required" :type="$type" :value="$value"
-                                          :min="$type === 'number' ? 1 : null" />
-                        @endif
-                    @endforeach
-                </div>
-            </section>
-        @endforeach
-
         <section class="bg-white rounded-lg shadow-sm border border-gray-200">
-            <h2 class="px-6 py-4 border-b font-semibold text-gray-800">Remarks</h2>
-            <div class="p-6"><textarea name="remarks" rows="3" class="{{ $in }}">{{ old('remarks', $pass->remarks) }}</textarea></div>
+            <h2 class="px-6 py-4 border-b font-semibold text-gray-800">Visitor Details</h2>
+            <div class="p-6 grid gap-5 sm:grid-cols-2">
+                <x-form-field name="visitor_name" label="Visitor Name" :required="true" :value="$pass->visitor_name" />
+                <x-form-field name="phone" label="Mobile No" type="tel" :required="true" :value="$pass->phone" />
+                <div class="sm:col-span-2">
+                    <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <textarea id="address" name="address" rows="2" maxlength="500" class="{{ $in }}{{ $errors->has('address') ? ' border-red-400' : '' }}">{{ old('address', $pass->address) }}</textarea>
+                    @error('address')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                </div>
+                <x-form-field name="purpose" label="Purpose of Visit" :required="true" :value="$pass->purpose" />
+                <x-form-field name="person_to_meet" label="Person to Meet" :required="true" :value="$pass->person_to_meet" />
+            </div>
         </section>
 
         <div class="flex flex-wrap items-center justify-end gap-3">

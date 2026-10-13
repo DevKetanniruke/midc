@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     @include('layouts.head')
-    <title>Sign in · {{ config('app.name') }}</title>
+    <title>Sign in · {{ $site->name }}</title>
 </head>
 <body class="font-sans antialiased bg-gray-100 text-gray-900">
 <div class="min-h-screen grid lg:grid-cols-2">
@@ -13,18 +13,22 @@
         <div class="absolute -left-20 bottom-10 h-72 w-72 rounded-full bg-white/10"></div>
 
         <div class="relative flex items-center gap-3">
-            <span class="h-11 w-11 rounded-xl bg-white/20 grid place-items-center">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 5v14M8 5v14M12 5v14M16 5v14M20 5v14"/></svg>
-            </span>
-            <span class="text-xl font-bold tracking-tight">{{ config('app.name') }}</span>
+            @if($site->logo)
+                <img src="{{ $site->logo }}" alt="{{ $site->name }}" class="h-11 w-11 rounded-xl bg-white p-1 object-contain">
+            @else
+                <span class="h-11 w-11 rounded-xl bg-white/20 grid place-items-center">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 5v14M8 5v14M12 5v14M16 5v14M20 5v14"/></svg>
+                </span>
+            @endif
+            <span class="text-xl font-bold tracking-tight">{{ $site->name }}</span>
         </div>
 
         <div class="relative max-w-md">
-            <h2 class="text-4xl font-bold leading-tight">Barcode &amp; QR labels, generated in seconds.</h2>
-            <p class="mt-4 text-white/80">Fill the entry form once and print production-ready labels. Gate passes and visitor passes are coming soon.</p>
+            <h2 class="text-4xl font-bold leading-tight">{{ $site->tagline ?: 'Labels, gate passes and visitor passes in one place.' }}</h2>
+            <p class="mt-4 text-white/80">Generate barcode &amp; QR labels, issue gate passes with approvals, and keep a record of every visitor.</p>
         </div>
 
-        <p class="relative text-sm text-white/70">&copy; {{ date('Y') }} {{ config('app.name') }}</p>
+        <p class="relative text-sm text-white/70">&copy; {{ date('Y') }} {{ $site->company }}@if($site->contact) · {{ $site->contact }}@endif</p>
     </div>
 
     {{-- Form panel --}}
@@ -39,10 +43,14 @@
 
         <div class="w-full max-w-md">
             <div class="lg:hidden flex items-center gap-2.5 mb-8">
-                <span class="h-10 w-10 rounded-xl bg-gradient-to-br from-accent-400 to-accent-700 text-white grid place-items-center">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 5v14M8 5v14M12 5v14M16 5v14M20 5v14"/></svg>
-                </span>
-                <span class="text-lg font-bold">{{ config('app.name') }}</span>
+                @if($site->logo)
+                    <img src="{{ $site->logo }}" alt="{{ $site->name }}" class="h-10 w-10 rounded-xl object-contain">
+                @else
+                    <span class="h-10 w-10 rounded-xl bg-gradient-to-br from-accent-400 to-accent-700 text-white grid place-items-center">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 5v14M8 5v14M12 5v14M16 5v14M20 5v14"/></svg>
+                    </span>
+                @endif
+                <span class="text-lg font-bold">{{ $site->name }}</span>
             </div>
 
             <h1 class="text-3xl font-bold">Welcome back</h1>

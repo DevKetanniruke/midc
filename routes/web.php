@@ -4,13 +4,29 @@ use App\Http\Controllers\GatePassController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VisitorPassController;
 use App\Http\Controllers\LabelController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\UserController;
 use App\Models\Label;
+use App\Support\Permissions;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Guests are sent on to the login page by the auth middleware; signed-in users land on the dashboard.
 Route::redirect('/', '/dashboard');
 
-Route::get('/dashboard', function () {
+Route::get('/dashboard', function (Request $request) {
+    // Someone without the dashboard permission is sent to the first menu they can open (or their profile).
+    if (! $request->user()->can('dashboard.view')) {
+        foreach (Permissions::LANDING as $permission => $route) {
+            if ($request->user()->can($permission)) {
+                return redirect()->route($route);
+            }
+        }
+
+        return redirect()->route('profile.edit');
+    }
+
     return view('dashboard', [
         'stats' => [
             'total' => Label::count(),
@@ -33,6 +49,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Public page opened by scanning a label's QR code (the values travel in the URL itself).
+Route::get('scan', function (Request $request) {
+    $values = array_pad(explode('|', (string) $request->query('v')), 5, '');
+
+    return view('labels.scan', ['values' => array_slice($values, 0, 5), 'raw' => (string) $request->query('v')]);
+})->name('labels.scan');
+
 Route::middleware('auth')->group(function () {
     Route::get('labels-print', [LabelController::class, 'printMany'])->name('labels.print.many');
     Route::get('labels/{label}/print', [LabelController::class, 'print'])->name('labels.print');
@@ -45,6 +68,13 @@ Route::middleware('auth')->group(function () {
     Route::get('visitor-passes/{visitor_pass}/print', [VisitorPassController::class, 'print'])->name('visitor-passes.print');
     Route::post('visitor-passes/{visitor_pass}/status', [VisitorPassController::class, 'status'])->name('visitor-passes.status');
     Route::resource('visitor-passes', VisitorPassController::class)->parameters(['visitor-passes' => 'visitor_pass']);
+
+    // Administration: who can log in, and which menus each role can open.
+    Route::resource('users', UserController::class)->except('show');
+    Route::resource('roles', RoleController::class)->except('show');
+
+    Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
+    Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
 });
 
 require __DIR__.'/auth.php';

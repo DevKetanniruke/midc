@@ -23,7 +23,7 @@
                 @if(request()->hasAny(['q', ...$filterKeys]))
                     <a href="{{ route('labels.index', ['per_page' => $perPage]) }}" class="px-3 py-2 text-sm text-gray-500 hover:underline">Reset</a>
                 @endif
-                <a href="{{ route('labels.create') }}" class="ml-auto px-4 py-2 bg-accent-600 text-white rounded-md text-sm font-semibold hover:bg-accent-700">+ New Label</a>
+                @can('labels.create')<a href="{{ route('labels.create') }}" class="ml-auto px-4 py-2 bg-accent-600 text-white rounded-md text-sm font-semibold hover:bg-accent-700">+ New Label</a>@endcan
             </div>
 
             <div x-cloak x-show="filters" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-4 border-t border-gray-200">
@@ -90,12 +90,14 @@
                                     @endphp
                                     <a href="{{ route('labels.show', $l) }}" title="View" aria-label="View" class="{{ $btn }} border-sky-200 text-sky-700 hover:bg-sky-50 dark:border-sky-500/30 dark:text-sky-300 dark:hover:bg-sky-500/10">{!! $ico('M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z') !!}</a>
                                     <a href="{{ route('labels.print', $l) }}" title="Print" aria-label="Print" class="{{ $btn }} border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-500/30 dark:text-emerald-300 dark:hover:bg-emerald-500/10">{!! $ico('M6 9V3h12v6M6 18H4a1 1 0 01-1-1v-6a2 2 0 012-2h14a2 2 0 012 2v6a1 1 0 01-1 1h-2M6 14h12v7H6z') !!}</a>
-                                    <a href="{{ route('labels.edit', $l) }}" title="Edit" aria-label="Edit" class="{{ $btn }} border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-500/30 dark:text-amber-300 dark:hover:bg-amber-500/10">{!! $ico('M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16v4zM13.5 6.5l4 4') !!}</a>
-                                    <a href="{{ route('labels.create', ['same' => $l->id]) }}" title="Same (copy with next batch)" aria-label="Same" class="{{ $btn }} border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-500/30 dark:text-violet-300 dark:hover:bg-violet-500/10">{!! $ico('M8 8h11v11H8zM5 16V5h11') !!}</a>
+                                    @can('labels.edit')<a href="{{ route('labels.edit', $l) }}" title="Edit" aria-label="Edit" class="{{ $btn }} border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-500/30 dark:text-amber-300 dark:hover:bg-amber-500/10">{!! $ico('M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16v4zM13.5 6.5l4 4') !!}</a>@endcan
+                                    @can('labels.create')<a href="{{ route('labels.create', ['same' => $l->id]) }}" title="Same (copy with next batch)" aria-label="Same" class="{{ $btn }} border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-500/30 dark:text-violet-300 dark:hover:bg-violet-500/10">{!! $ico('M8 8h11v11H8zM5 16V5h11') !!}</a>@endcan
+@can('labels.delete')
                                     <form method="POST" action="{{ route('labels.destroy', $l) }}" class="inline" onsubmit="return confirm('Delete this label?')">
                                         @csrf @method('DELETE')
                                         <button title="Delete" aria-label="Delete" class="{{ $btn }} border-red-200 text-red-700 hover:bg-red-50 dark:border-red-500/30 dark:text-red-300 dark:hover:bg-red-500/10">{!! $ico('M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3') !!}</button>
                                     </form>
+@endcan
                                 </div>
                             </td>
                         </tr>

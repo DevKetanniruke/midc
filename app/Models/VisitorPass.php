@@ -8,12 +8,10 @@ class VisitorPass extends Model
 {
     public const STATUSES = ['expected' => 'Expected', 'in' => 'Checked In', 'out' => 'Checked Out', 'cancelled' => 'Cancelled'];
 
-    public const ID_PROOFS = ['Aadhaar', 'Driving Licence', 'PAN', 'Passport', 'Voter ID', 'Company ID', 'Other'];
-
+    /** Fields of the printed "Visitor Gate Pass"; the older company / ID proof / vehicle columns are kept in the table but no longer used. */
     protected $fillable = [
-        'pass_number', 'visitor_name', 'company', 'phone', 'email', 'id_proof_type', 'id_proof_number',
-        'person_to_meet', 'department', 'purpose', 'persons', 'vehicle_number', 'belongings',
-        'expected_at', 'check_in_at', 'check_out_at', 'status', 'remarks', 'created_by',
+        'pass_number', 'visitor_name', 'phone', 'address', 'purpose', 'person_to_meet',
+        'expected_at', 'check_in_at', 'check_out_at', 'status', 'created_by',
     ];
 
     protected function casts(): array

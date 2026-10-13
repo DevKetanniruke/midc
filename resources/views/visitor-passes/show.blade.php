@@ -8,7 +8,8 @@
             <h1 class="font-semibold text-lg text-gray-800">Visitor Pass · {{ $pass->pass_number }}</h1>
             <div class="flex flex-wrap gap-2 text-sm font-medium">
                 <a href="{{ route('visitor-passes.index') }}" class="px-3 py-1.5 rounded-md border border-gray-300 hover:bg-gray-50">Back</a>
-                <a href="{{ route('visitor-passes.edit', $pass) }}" class="px-3 py-1.5 rounded-md border border-gray-300 hover:bg-gray-50">Edit</a>
+                @can('visitor-passes.edit')<a href="{{ route('visitor-passes.edit', $pass) }}" class="px-3 py-1.5 rounded-md border border-gray-300 hover:bg-gray-50">Edit</a>@endcan
+@can('visitor-passes.edit')
                 @if($pass->status === 'expected')
                     {!! $act('checkin', 'Check In', 'border-sky-300 text-sky-700 hover:bg-sky-50') !!}
                     {!! $act('cancel', 'Cancel Pass', 'border-red-300 text-red-700 hover:bg-red-50', 'Cancel this visitor pass?') !!}
@@ -18,6 +19,7 @@
                 @else
                     {!! $act('reopen', 'Reopen', 'border-gray-300 hover:bg-gray-50') !!}
                 @endif
+                @endcan
                 <a href="{{ route('visitor-passes.print', $pass) }}" target="_blank" class="px-3 py-1.5 rounded-md bg-accent-600 text-white hover:bg-accent-700">Print</a>
             </div>
         </div>
@@ -34,24 +36,18 @@
                 <dl class="grid sm:grid-cols-2 gap-x-6 gap-y-4 p-5 text-sm">
                     @foreach([
                         'Status' => \App\Models\VisitorPass::STATUSES[$pass->status],
+                        'Date' => $pass->visitAt()?->format('d M Y'),
                         'Visitor Name' => $pass->visitor_name,
-                        'Company' => $pass->company,
-                        'Phone' => $pass->phone,
-                        'Email' => $pass->email,
-                        'ID Proof' => trim($pass->id_proof_type.' '.$pass->id_proof_number),
+                        'Mobile No' => $pass->phone,
+                        'Purpose of Visit' => $pass->purpose,
                         'Person to Meet' => $pass->person_to_meet,
-                        'Department' => $pass->department,
-                        'Purpose' => $pass->purpose,
-                        'No. of Persons' => $pass->persons,
-                        'Vehicle Number' => $pass->vehicle_number,
-                        'Belongings' => $pass->belongings,
-                        'Expected Arrival' => $pass->expected_at?->format('d M Y H:i'),
-                        'Checked In' => $pass->check_in_at?->format('d M Y H:i'),
-                        'Checked Out' => $pass->check_out_at?->format('d M Y H:i'),
+                        'Expected Arrival' => $pass->expected_at?->format('d M Y, h:i A'),
+                        'In Time' => $pass->check_in_at?->format('h:i A'),
+                        'Out Time' => $pass->check_out_at?->format('h:i A'),
                     ] as $k => $v)
                         <div><dt class="text-gray-500">{{ $k }}</dt><dd class="font-medium text-gray-900">{{ $v ?: '—' }}</dd></div>
                     @endforeach
-                    <div class="sm:col-span-2"><dt class="text-gray-500">Remarks</dt><dd class="font-medium text-gray-900 whitespace-pre-line">{{ $pass->remarks ?: '—' }}</dd></div>
+                    <div class="sm:col-span-2"><dt class="text-gray-500">Address</dt><dd class="font-medium text-gray-900 whitespace-pre-line">{{ $pass->address ?: "—" }}</dd></div>
                 </dl>
             </section>
         </div>

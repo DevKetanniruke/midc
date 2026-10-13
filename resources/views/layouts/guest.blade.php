@@ -2,13 +2,17 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('layouts.head')
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ $site->name }}</title>
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
             <div>
                 <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+                    @if($site->logo)
+                        <img src="{{ $site->logo }}" alt="{{ $site->name }}" class="w-20 h-20 object-contain">
+                    @else
+                        <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+                    @endif
                 </a>
             </div>
 
